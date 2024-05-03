@@ -18,7 +18,8 @@ class SvgDrawingAnimation extends StatefulWidget {
       this.animation,
       this.loadingWidgetBuilder = defaultLoadingWidgetBuilder,
       this.errorWidgetBuilder = defaultErrorWidgetBuilder,
-      this.penRenderer})
+      this.penRenderer,
+      this.refresh = false})
       : assert(!(duration == null && speed == null && animation == null),
             'You must set a duration, speed or animation.'),
         assert(
@@ -56,6 +57,9 @@ class SvgDrawingAnimation extends StatefulWidget {
   /// Optionally renders the Pen during the drawing animation.
   final PenRenderer? penRenderer;
 
+  /// Refreshes the path length
+  final bool refresh;
+
   /// Computes the total length of paths in SVG.
   static double getPathLengthSum(Drawable drawable) {
     final c = MeasurePathLengthCanvas();
@@ -75,7 +79,7 @@ class _SvgDrawingAnimationState extends State<SvgDrawingAnimation>
   bool isInitialized = false;
   Animation<double>? animation;
   AnimationController? controller;
-  late final double totalPathLength;
+  late double totalPathLength;
 
   @override
   void initState() {
@@ -105,7 +109,7 @@ class _SvgDrawingAnimationState extends State<SvgDrawingAnimation>
           }
           final drawable = snapshot.data!;
           // Compute total length and set up animation;
-          if (!isInitialized) {
+          if (!isInitialized || widget.refresh) {
             totalPathLength = SvgDrawingAnimation.getPathLengthSum(drawable);
             isInitialized = true;
 
